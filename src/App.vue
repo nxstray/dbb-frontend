@@ -1,7 +1,8 @@
 <template>
   <div>
-    <Navbar />
-    <router-view />
+    <!-- <Admin /> -->
+    <!-- <Navbar />-->
+    <router-view></router-view>
   </div>
 </template>
 
