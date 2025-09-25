@@ -139,7 +139,7 @@ export default {
   methods: {
     async fetchMenu() {
       try {
-        const res = await axios.get("/admin/manajemen-stok");
+        const res = await axios.get("/manajemen-stok");
         this.daftarMenu = res.data;
       } catch (error) {
         console.error(error);
@@ -150,10 +150,10 @@ export default {
       try {
         if (this.form.id) {
           // Edit menu
-          await axios.put(`/admin/manajemen-stok/${this.form.id}`, this.form);
+          await axios.put(`/manajemen-stok/${this.form.id}`, this.form);
         } else {
           // Tambah menu baru
-          const res = await axios.post("/admin/manajemen-stok", this.form);
+          const res = await axios.post("/manajemen-stok", this.form);
           this.daftarMenu.push(res.data);
         }
         this.resetForm();
@@ -171,7 +171,7 @@ export default {
     async hapusMenu(id) {
       if (!confirm("Yakin ingin menghapus menu ini?")) return;
       try {
-        await axios.delete(`/admin/manajemen-stok/${id}`);
+        await axios.delete(`/manajemen-stok/${id}`);
         this.fetchMenu();
       } catch (error) {
         console.error(error);
