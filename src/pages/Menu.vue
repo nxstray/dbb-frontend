@@ -88,6 +88,7 @@
           }}
         </div>
         <button
+          @click="checkoutNow"
           class="w-full mt-3 bg-[var(--color-santafe)] text-white py-2 rounded-lg"
         >
           Checkout
@@ -108,8 +109,12 @@
 <script setup>
 import { reactive, ref } from "vue";
 import Navbar from "@/components/Navbar.vue";
+import { useRouter } from "vue-router";
+import { checkout } from "../services/orderService";
 
+const router = useRouter();
 const showCart = ref(false);
+
 function toggleCart() {
   showCart.value = !showCart.value;
 }
@@ -127,13 +132,6 @@ const categories = [
       },
       {
         id: 2,
-        nama: "Ayam Bakar",
-        deskripsi: "Ayam bakar bumbu kecap khas Dapur Bunda",
-        harga: 30000,
-        gambar: "/src/images/ayam.jpeg",
-      },
-      {
-        id: 10,
         nama: "Ayam Bakar",
         deskripsi: "Ayam bakar bumbu kecap khas Dapur Bunda",
         harga: 30000,
@@ -164,21 +162,14 @@ const categories = [
     nama: "Minuman",
     items: [
       {
-        id: 3,
+        id: 5,
         nama: "Es Teh Manis",
         deskripsi: "Teh hitam dengan es batu",
         harga: 8000,
         gambar: "/src/images/esteh.jpg",
       },
       {
-        id: 4,
-        nama: "Jus Jeruk",
-        deskripsi: "Jus jeruk segar alami",
-        harga: 12000,
-        gambar: "/src/images/jusjeruk.jpg",
-      },
-      {
-        id: 4,
+        id: 6,
         nama: "Jus Jeruk",
         deskripsi: "Jus jeruk segar alami",
         harga: 12000,
@@ -211,6 +202,56 @@ function increaseQty(item) {
 function decreaseQty(item) {
   if (item.qty > 1) item.qty--;
   else removeFromCart(item.id);
+}
+
+// checkout logic
+async function checkoutNow() {
+  try {
+    // DEBUG: Cek apa yang ada di localStorage
+    console.log('=== LOCALSTORAGE DEBUG ===');
+    console.log('Raw localStorage user:', localStorage.getItem('user'));
+    
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('Parsed user:', user);
+    console.log('user.idPelanggan:', user.idPelanggan);
+    console.log('user keys:', Object.keys(user));
+    
+    console.log('user.id_pelanggan:', user.id_pelanggan);
+    console.log('user.id:', user.id);
+    
+    if (!user || (!user.idPelanggan && !user.id_pelanggan && !user.id)) {
+      alert('Silakan login terlebih dahulu');
+      router.push('/login');
+      return;
+    }
+    
+    const pelangganId = user.idPelanggan || user.id_pelanggan || user.id;
+    console.log('Using pelangganId:', pelangganId);
+    
+    const response = await checkout(pelangganId, cart);
+    
+    console.log('Checkout response:', response);
+    
+    if (response.data && response.data.success) {
+      alert('Pesanan berhasil dibuat!');
+      
+      cart.splice(0, cart.length);
+      
+      // Redirect ke halaman payment
+      router.push({
+        name: "Payment",
+        params: {
+          idPesanan: response.data.pesananId,
+          total: response.data.total,
+        },
+      });
+    } else {
+      alert(response.data?.message || "Gagal membuat pesanan");
+    }
+  } catch (err) {
+    console.error('Checkout error:', err);
+    alert(err.response?.data?.message || "Terjadi kesalahan saat checkout");
+  }
 }
 </script>
 
