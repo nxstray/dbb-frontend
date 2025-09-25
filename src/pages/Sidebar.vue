@@ -27,7 +27,7 @@
       </li>
       <li>
         <router-link
-          to="/manajemen-stok"
+          to="/admin/manajemen-stok"
           class="hover:text-[var(--color-deco)]"
         >
           Manajemen Stok
