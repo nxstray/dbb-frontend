@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-santafe: #ad734e;
+    --color-rebel: #451d07;
+    --color-merino: #f5ebe2;
+    --color-cardinal: #d12323;
+    --color-deco: #dbd294;
+  }
+}
