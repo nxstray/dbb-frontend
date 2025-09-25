@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <div class="max-w-7xl mx-auto p-6 flex">
     <div
       :class="[
@@ -106,6 +107,7 @@
 
 <script setup>
 import { reactive, ref } from "vue";
+import Navbar from "@/components/Navbar.vue";
 
 const showCart = ref(false);
 function toggleCart() {

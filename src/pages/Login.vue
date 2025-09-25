@@ -1,7 +1,6 @@
 <template>
   <div class="min-h-screen bg-[var(--color-merino)] flex flex-col">
-
-
+    <Navbar />
     <div class="flex-grow flex items-center justify-center">
       <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
         <h2
