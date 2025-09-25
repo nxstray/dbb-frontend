@@ -85,7 +85,7 @@
         <tbody>
           <tr
             v-for="(menu, index) in daftarMenu"
-            :key="index"
+            :key="menu.id"
             class="hover:bg-gray-50"
           >
             <td class="p-2 border-b">{{ index + 1 }}</td>
@@ -95,13 +95,13 @@
             <td class="p-2 border-b">Rp {{ menu.harga.toLocaleString() }}</td>
             <td class="p-2 border-b space-x-2">
               <button
-                @click="editMenu(index)"
+                @click="editMenu(menu)"
                 class="bg-[var(--color-deco)] text-[var(--color-rebel)] px-2 py-1 rounded hover:bg-[var(--color-santafe)] hover:text-white text-sm"
               >
                 Edit
               </button>
               <button
-                @click="hapusMenu(index)"
+                @click="hapusMenu(menu.id)"
                 class="bg-[var(--color-cardinal)] text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
               >
                 Hapus
@@ -120,57 +120,67 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       tampilForm: false,
       form: {
+        id: null,
         nama: "",
         kategori: "",
         stok: 0,
         harga: 0,
       },
       daftarMenu: [],
-      indexEdit: null,
     };
   },
   methods: {
-    tambahMenu() {
-      const namaTrim = this.form.nama.trim().toLowerCase();
-      const kategoriTrim = this.form.kategori.trim().toLowerCase();
-
-      if (this.indexEdit !== null) {
-        this.daftarMenu[this.indexEdit] = { ...this.form };
-        this.indexEdit = null;
-      } else {
-        const existing = this.daftarMenu.find(
-          (menu) =>
-            menu.nama.trim().toLowerCase() === namaTrim &&
-            menu.kategori.trim().toLowerCase() === kategoriTrim
-        );
-
-        if (existing) {
-          existing.stok += Number(this.form.stok);
-        } else {
-          this.daftarMenu.push({ ...this.form });
-        }
+    async fetchMenu() {
+      try {
+        const res = await axios.get("/admin/manajemen-stok");
+        this.daftarMenu = res.data;
+      } catch (error) {
+        console.error(error);
       }
-
-      this.resetForm();
     },
 
-    editMenu(index) {
-      this.indexEdit = index;
-      this.form = { ...this.daftarMenu[index] };
+    async tambahMenu() {
+      try {
+        if (this.form.id) {
+          // Edit menu
+          await axios.put(`/admin/manajemen-stok/${this.form.id}`, this.form);
+        } else {
+          // Tambah menu baru
+          const res = await axios.post("/admin/manajemen-stok", this.form);
+          this.daftarMenu.push(res.data);
+        }
+        this.resetForm();
+        this.fetchMenu();
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    editMenu(menu) {
+      this.form = { ...menu };
       this.tampilForm = true;
     },
 
-    hapusMenu(index) {
-      this.daftarMenu.splice(index, 1);
+    async hapusMenu(id) {
+      if (!confirm("Yakin ingin menghapus menu ini?")) return;
+      try {
+        await axios.delete(`/admin/manajemen-stok/${id}`);
+        this.fetchMenu();
+      } catch (error) {
+        console.error(error);
+      }
     },
 
     resetForm() {
       this.form = {
+        id: null,
         nama: "",
         kategori: "",
         stok: 0,
@@ -178,6 +188,9 @@ export default {
       };
       this.tampilForm = false;
     },
+  },
+  mounted() {
+    this.fetchMenu();
   },
 };
 </script>
